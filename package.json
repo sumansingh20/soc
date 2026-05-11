@@ -1,0 +1,24 @@
+{
+  "name": "soc-training-platform",
+  "version": "1.0.0",
+  "description": "Advanced Security Operations Center Training Platform",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w frontend\" \"npm run dev -w backend\"",
+    "build": "npm run build -w frontend && npm run build -w backend",
+    "start": "npm start -w backend",
+    "test": "npm test -w frontend && npm test -w backend",
+    "db:migrate": "node backend/database/migrate.js",
+    "db:seed": "node backend/database/seed.js",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

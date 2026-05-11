@@ -1,0 +1,1 @@
+console.log('No rollback workflow is configured for the MongoDB seed-based setup.');

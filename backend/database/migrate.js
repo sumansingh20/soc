@@ -1,0 +1,1 @@
+console.log('No schema migration runner is configured. Use npm run db:seed to populate MongoDB content.');
