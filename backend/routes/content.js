@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import logger from '../utils/logger.js';
 import { Course, Lesson, Lab, Note, Command, Resource } from '../models/index.js';
+import authenticate from '../middleware/authenticate.js';
 import {
   courses as fallbackCourses,
   days as fallbackDays,
@@ -10,9 +11,10 @@ import {
   resources as fallbackResources,
 } from '../data/socContent.js';
 
+
 const router = Router();
 
-router.get('/roadmap', async (req, res) => {
+router.get('/roadmap', authenticate, async (req, res) => {
   try {
     const courses = await Course.find({ published: true }).sort({ order: 1, createdAt: 1 });
     const source = courses.length ? courses : fallbackCourses;
@@ -30,7 +32,7 @@ router.get('/roadmap', async (req, res) => {
   }
 });
 
-router.get('/days', async (req, res) => {
+router.get('/days', authenticate, async (req, res) => {
   try {
     const lessons = await Lesson.find({ published: true }).sort({ dayNumber: 1 }).lean();
     const source = lessons.length ? lessons : fallbackDays;
@@ -57,7 +59,7 @@ router.get('/days', async (req, res) => {
   }
 });
 
-router.get('/search', async (req, res) => {
+router.get('/search', authenticate, async (req, res) => {
   try {
     const query = String(req.query.q || '').trim();
 

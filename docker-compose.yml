@@ -5,12 +5,19 @@ services:
       MONGO_INITDB_ROOT_USERNAME: soc_user
       MONGO_INITDB_ROOT_PASSWORD: secure_password
       MONGO_INITDB_DB: soc_platform
+      # Use root user for now to guarantee authenticated read/write.
+      # (The official image will not reliably create arbitrary app users via these envs.)
+      MONGO_APP_USERNAME: soc_user
+      MONGO_APP_PASSWORD: secure_password
+
+    command: ["mongod", "--auth"]
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
     networks:
       - soc-network
+
 
   redis:
     image: redis:7-alpine
@@ -26,7 +33,11 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      MONGODB_URI: mongodb://soc_user:secure_password@mongodb:27017/soc_platform?authSource=admin
+      # Use dedicated app user for seeding/upserts (least privilege)
+      MONGODB_URI: mongodb+srv://sumantech:sumankumar@cluster0.1enfs6w.mongodb.net/
+
+
+
       REDIS_URL: redis://redis:6379
       NODE_ENV: production
       API_PORT: 5000

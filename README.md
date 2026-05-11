@@ -15,8 +15,8 @@ Practical SOC analyst learning portal created by Suman Kumar. The platform combi
 ```bash
 npm install
 docker compose up -d mongodb
-env 'MONGODB_URI=mongodb://soc_user:secure_password@127.0.0.1:27017/soc_platform?authSource=admin' npm run db:seed
-env 'MONGODB_URI=mongodb://soc_user:secure_password@127.0.0.1:27017/soc_platform?authSource=admin' npm start -w backend
+env 'MONGODB_URI=mongodb+srv://sumantech:sumankumar@cluster0.1enfs6w.mongodb.net/' npm run db:seed
+env 'MONGODB_URI=mongodb+srv://sumantech:sumankumar@cluster0.1enfs6w.mongodb.net/' npm start -w backend
 env NEXT_PUBLIC_API_URL=http://localhost:5000 npm run dev -w frontend
 ```
 
