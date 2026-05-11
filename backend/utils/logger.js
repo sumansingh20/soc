@@ -27,16 +27,21 @@ const transports = [
   new winston.transports.Console({
     format: winston.format.combine(winston.format.colorize({ all: true }), format),
   }),
-  new winston.transports.File({
-    filename: 'logs/error.log',
-    level: 'error',
-    format,
-  }),
-  new winston.transports.File({
-    filename: 'logs/all.log',
-    format,
-  }),
 ];
+
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  transports.push(
+    new winston.transports.File({
+      filename: 'logs/error.log',
+      level: 'error',
+      format,
+    }),
+    new winston.transports.File({
+      filename: 'logs/all.log',
+      format,
+    })
+  );
+}
 
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'debug',
