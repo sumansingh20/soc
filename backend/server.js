@@ -142,11 +142,15 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT = config.PORT || 5000;
-httpServer.listen(PORT, config.HOST, () => {
-  logger.info(`SOC Academy Backend running on http://${config.HOST}:${PORT}`);
-  logger.info(`Environment: ${config.NODE_ENV}`);
-});
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  const PORT = config.PORT || 5000;
+  httpServer.listen(PORT, config.HOST, () => {
+    logger.info(`SOC Academy Backend running on http://${config.HOST}:${PORT}`);
+    logger.info(`Environment: ${config.NODE_ENV}`);
+  });
+}
+
+export default app;
 
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received, shutting down gracefully');
