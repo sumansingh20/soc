@@ -1,70 +1,89 @@
-import { query } from '../config/database.js';
+import mongoose from 'mongoose';
 
-export const createLab = async (labData) => {
-  const {
-    title, slug, description, objectives, scenario, difficulty, category,
-    tags, estimated_time_minutes, instructions, expected_findings
-  } = labData;
+const { Schema, model } = mongoose;
 
-  const result = await query(
-    `INSERT INTO labs (title, slug, description, objectives, scenario, difficulty,
-      category, tags, estimated_time_minutes, instructions, expected_findings)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-     RETURNING *`,
-    [title, slug, description, objectives, scenario, difficulty, category,
-      tags, estimated_time_minutes, instructions, expected_findings]
-  );
+const labSubmissionSchema = new Schema(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    findings: { type: String, default: '' },
+    report: { type: String, default: '' },
+    evidenceIds: [{ type: String }],
+    score: { type: Number, default: 0 },
+    feedback: { type: String, default: '' },
+    submittedAt: { type: Date, default: Date.now },
+  },
+  { _id: false }
+);
 
-  return result.rows[0];
-};
+const labSchema = new Schema(
+  {
+    slug: { type: String, required: true, unique: true, trim: true },
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    scenario: { type: String, required: true },
+    objective: { type: String, required: true },
+    difficulty: {
+      type: String,
+      enum: ['beginner', 'intermediate', 'advanced'],
+      default: 'beginner',
+    },
+    category: { type: String, default: 'SOC Investigation' },
+    tags: [{ type: String }],
+    estimatedMinutes: { type: Number, default: 30 },
+    estimatedTimeMinutes: { type: Number, default: 30 },
 
-export const getLabBySlug = async (slug) => {
-  const result = await query('SELECT * FROM labs WHERE slug = $1', [slug]);
-  return result.rows[0];
-};
+    // Dataset-driven / evidence-driven training
+    datasets: [
+      {
+        datasetSlug: { type: String, required: true },
+      },
+    ],
+    evidencePacks: [
+      {
+        // For structured evidence references (log lines, alert objects, terminal outputs)
+        id: { type: String, required: true },
+        label: { type: String, default: '' },
+        kind: { type: String, enum: ['log', 'alert', 'terminal', 'network', 'process', 'note'], default: 'log' },
+        // Raw content is stored as string for flexibility
+        content: { type: String, default: '' },
+        source: { type: String, default: '' },
+        tags: [{ type: String }],
+      },
+    ],
 
-export const getLabById = async (id) => {
-  const result = await query('SELECT * FROM labs WHERE id = $1', [id]);
-  return result.rows[0];
-};
+    logs: [{ type: String }],
+    sampleLogs: [
+      {
+        source: String,
+        line: String,
+        clue: String,
+      },
+    ],
 
-export const getAllLabs = async (filters = {}) => {
-  let queryStr = 'SELECT * FROM labs WHERE is_published = true';
-  const values = [];
+    commands: [{ type: String }],
+    workflow: [{ type: String }],
 
-  if (filters.difficulty) {
-    queryStr += ` AND difficulty = $${values.length + 1}`;
-    values.push(filters.difficulty);
-  }
+    // Evidence checklist used to evaluate student submissions
+    requiredEvidenceIds: [{ type: String }],
+    expectedFindings: [{ type: String }],
 
-  if (filters.category) {
-    queryStr += ` AND category = $${values.length + 1}`;
-    values.push(filters.category);
-  }
+    solution: { type: String, required: true },
+    rubrics: {
+      // Optional enterprise rubric fields for scoring transparency
+      overall: { type: String, default: '' },
+      checklistWeight: { type: Number, default: 0.7 },
+      rationaleWeight: { type: Number, default: 0.3 },
+    },
 
-  queryStr += ' ORDER BY created_at DESC LIMIT $' + (values.length + 1) + ' OFFSET $' + (values.length + 2);
-  values.push(filters.limit || 20, filters.offset || 0);
+    published: { type: Boolean, default: true },
 
-  const result = await query(queryStr, values);
-  return result.rows;
-};
+    // Existing submissions storage (used by current UI)
+    submissions: [labSubmissionSchema],
+  },
+  { timestamps: true }
+);
 
-export const submitLabSolution = async (userId, labId, submission) => {
-  const result = await query(
-    `INSERT INTO lab_submissions (user_id, lab_id, submission_data, submitted_at)
-     VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
-     RETURNING *`,
-    [userId, labId, JSON.stringify(submission)]
-  );
+export const Lab = model('Lab', labSchema);
 
-  return result.rows[0];
-};
+export default Lab;
 
-export const getLabSubmissions = async (userId, labId) => {
-  const result = await query(
-    'SELECT * FROM lab_submissions WHERE user_id = $1 AND lab_id = $2 ORDER BY submitted_at DESC',
-    [userId, labId]
-  );
-
-  return result.rows;
-};

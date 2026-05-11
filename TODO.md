@@ -1,38 +1,49 @@
-# SOC Academy – Enterprise Build TODO
+# SOC Analyst Training Platform — Build TODO
 
-## Phase 0 — Foundation & correctness (must finish first)
-- [ ] Unify persistence on MongoDB + Mongoose (remove/stop using SQL-based model logic)
-- [ ] Fix any model imports/exports so all routes use the same Mongo collections
-- [ ] Ensure all protected routes are guarded by authenticate + authorize
-- [ ] Add audit logging model + middleware hooks for admin/content changes
+## Step 0: Repo understanding & current gaps
+- [x] Inspect existing backend content/labs endpoints and fallback content (`backend/routes/content.js`, `backend/data/socContent.js`, `backend/routes/labs.js`).
+- [x] Identify mismatch with required “enterprise level, real-world, deep, no placeholder content”.
 
-## Phase 1 — Real SOC Lab Engine (terminal + datasets + grading)
-- [ ] Extend lab schema to include: datasets, terminal profile (allowed commands), expected evidence JSON, scoring rules
-- [ ] Add LabInstance model for per-user runtime state
-- [ ] Add lab engine service: dataset loader, simulated terminal command execution, evidence extraction
-- [ ] Implement lab instance endpoints (start/command/finish/progress)
-- [ ] Replace lab frontend evidence section with a real interactive terminal + step UI
-- [ ] Add lab progress validation (structured evidence vs expected)
+## Step 1: Enterprise content data model
+- [ ] Add MongoDB schemas/models for:
+  - Lessons with ordered sections (beginner/deep/practical/examples/workflow/mistakes/tips/commands/logs/ui-spec/tasks)
+  - Investigation cases (multi-stage narratives + evidence timeline)
+  - Datasets (JSON evidence packs used by labs)
+  - Dashboard boards/widgets (SOC-style panels)
+  - UI spec assets (screenshots-style UI definitions)
+- [ ] Update backend routes to expose these new entities.
 
-## Phase 2 — Real Investigation Workflow Room
-- [ ] Add InvestigationInstance model and workflow stage state machine
-- [ ] Implement investigation endpoints (start/evidence/next/finish)
-- [ ] Update investigation frontend page into an interactive workflow room with validation + persistence
+## Step 2: Dataset-driven labs + evidence-based grading
+- [ ] Update lab schema to store evidence IDs, required evidence checklist, and rubrics.
+- [ ] Replace keyword/substring grading in `backend/routes/labs.js` with evidence-based scoring.
+- [ ] Add endpoints for lab evidence packs and task checks.
 
-## Phase 3 — Real SIEM Simulation (events + alerts + dashboards)
-- [ ] Add event ingestion model (synthetic events stored in Mongo)
-- [ ] Add rule model (Sigma-like JSON filters + severity + enrichment)
-- [ ] Add alert model generated from events
-- [ ] Implement SIEM endpoints (start/stop/events query/alerts stream)
-- [ ] Update SIEM frontend page into a real monitoring console with search + alert timeline
+## Step 3: Replace `backend/data/socContent.js` fallback
+- [ ] Create a content package (Day 1–Day 7) with real investigation workflows, real logs, real commands, and structured attack traces.
+- [ ] Load this package via seed scripts / content loader.
 
-## Phase 4 — Admin system fully wired
-- [ ] Update AdminPanel lab creation/edit fields to support datasets + terminal profile + expected evidence JSON
-- [ ] Add admin endpoints/tests for validating lab schema
-- [ ] Ensure seeded baseline content includes the full 7-day roadmap with executable labs
+## Step 4: SOC dashboard UI + investigation workflows
+- [ ] Implement real-time style dashboard pages (alert widgets, investigation feed, log windows, terminal sections).
+- [ ] Implement student investigation feed + saved notes linked to evidence IDs.
 
-## Phase 5 — Quality & production readiness
-- [ ] Add environment validation, improved error handling, request validation
-- [ ] Run backend smoke tests + frontend build
-- [ ] Update docs: installation, environment variables, deployment
+## Step 5: Quizzes enhancements
+- [ ] Improve quiz model to store per-question rationale/evidence requirements.
+- [ ] Update grading and feedback.
+
+## Step 6: Admin panel + upload capabilities
+- [ ] Ensure admin routes can upload/edit lessons, datasets, labs, quizzes, UI specs.
+- [ ] Add admin analytics endpoints (completion funnel, time-on-task, lab pass rates).
+
+## Step 7: Verification
+- [ ] Seed enterprise content and verify endpoints:
+  - `/api/content/roadmap`
+  - `/api/content/days`
+  - `/api/content/search`
+  - `/api/labs`, `/api/labs/:slug`
+- [ ] Frontend build + lint + runtime smoke tests.
+
+## Release criteria
+- [ ] Platform renders Day 1–Day 7 with deep, step-by-step, real-world content.
+- [ ] Labs are dataset-driven with evidence-based grading.
+- [ ] SOC-style dashboard pages show real investigation structures.
 

@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import logger from '../utils/logger.js';
+import authenticate from '../middleware/authenticate.js';
+import authorize from '../middleware/authorize.js';
 import { Lab, Progress } from '../models/index.js';
 import { labs as fallbackLabs } from '../data/socContent.js';
 
@@ -42,9 +44,10 @@ const scoreSubmission = (lab, findings = '', report = '') => {
   };
 };
 
-router.get('/', async (_req, res) => {
+router.get('/', authenticate, async (_req, res) => {
   try {
     const items = await Lab.find({ published: true }).sort({ createdAt: -1 }).lean();
+
     if (!items.length) {
       return res.json({ labs: fallbackLabs.map(serializeLab) });
     }
@@ -58,9 +61,10 @@ router.get('/', async (_req, res) => {
   }
 });
 
-router.get('/:slug', async (req, res) => {
+router.get('/:slug', authenticate, async (req, res) => {
   try {
     const lab = await Lab.findOne({ slug: req.params.slug }).lean();
+
 
     if (!lab) {
       const fallback = fallbackLabs.find((item) => item.slug === req.params.slug);
@@ -78,8 +82,9 @@ router.get('/:slug', async (req, res) => {
   }
 });
 
-router.post('/:labId/submit', async (req, res) => {
+router.post('/:labId/submit', authenticate, async (req, res) => {
   try {
+
     const { findings, report } = req.body;
     const query = req.params.labId.match(/^[0-9a-fA-F]{24}$/)
       ? { $or: [{ _id: req.params.labId }, { slug: req.params.labId }] }
@@ -131,8 +136,9 @@ router.post('/:labId/submit', async (req, res) => {
   }
 });
 
-router.get('/:labId/submissions', async (req, res) => {
+router.get('/:labId/submissions', authenticate, async (req, res) => {
   try {
+
     const lab = await Lab.findById(req.params.labId).lean();
     if (!lab) {
       return res.status(404).json({ message: 'Lab not found' });

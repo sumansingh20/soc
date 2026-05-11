@@ -2,6 +2,8 @@ import { Router } from 'express';
 import logger from '../utils/logger.js';
 import { Quiz, Progress } from '../models/index.js';
 import { quizzes as fallbackQuizzes } from '../data/socContent.js';
+import authenticate from '../middleware/authenticate.js';
+
 
 const router = Router();
 
@@ -38,7 +40,7 @@ const gradeQuiz = (quiz, answers) => {
   return { score, perQuestion };
 };
 
-router.get('/course/:courseSlug', async (req, res) => {
+router.get('/course/:courseSlug', authenticate, async (req, res) => {
   try {
     const quiz = await Quiz.findOne({ courseSlug: req.params.courseSlug, published: true }).lean();
     if (!quiz) {
@@ -57,7 +59,7 @@ router.get('/course/:courseSlug', async (req, res) => {
   }
 });
 
-router.post('/attempt', async (req, res) => {
+router.post('/attempt', authenticate, async (req, res) => {
   try {
     const userId = req.user?.id;
     if (!userId) return res.status(401).json({ message: 'Not authenticated' });

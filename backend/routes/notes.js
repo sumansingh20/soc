@@ -19,7 +19,7 @@ const serializeNote = (note) => ({
   pdfTitle: note.pdfTitle,
 });
 
-router.get('/', async (req, res) => {
+router.get('/', authenticate, async (req, res) => {
   try {
     const filters = { published: true };
     if (req.query.courseSlug) filters.courseSlug = req.query.courseSlug;
@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/:slug', async (req, res) => {
+router.get('/:slug', authenticate, async (req, res) => {
   try {
     const note = await Note.findOne({ slug: req.params.slug, published: true }).lean();
     const source = note || fallbackNotes.find((item) => item.slug === req.params.slug);

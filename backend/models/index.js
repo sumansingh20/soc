@@ -59,44 +59,8 @@ const lessonSchema = new Schema(
   { timestamps: true }
 );
 
-const labSchema = new Schema(
-  {
-    slug: { type: String, required: true, unique: true, trim: true },
-    title: { type: String, required: true },
-    description: { type: String, required: true },
-    scenario: { type: String, required: true },
-    objective: { type: String, required: true },
-    difficulty: { type: String, enum: ['beginner', 'intermediate', 'advanced'], default: 'beginner' },
-    category: { type: String, default: 'SOC Investigation' },
-    tags: [{ type: String }],
-    estimatedMinutes: { type: Number, default: 30 },
-    estimatedTimeMinutes: { type: Number, default: 30 },
-    logs: [{ type: String }],
-    sampleLogs: [
-      {
-        source: String,
-        line: String,
-        clue: String,
-      },
-    ],
-    commands: [{ type: String }],
-    workflow: [{ type: String }],
-    expectedFindings: [{ type: String }],
-    solution: { type: String, required: true },
-    published: { type: Boolean, default: true },
-    submissions: [
-      {
-        userId: { type: Schema.Types.ObjectId, ref: 'User' },
-        findings: String,
-        report: String,
-        score: Number,
-        feedback: String,
-        submittedAt: { type: Date, default: Date.now },
-      },
-    ],
-  },
-  { timestamps: true }
-);
+// Lab schema moved to dedicated module: ./lab.model.js
+
 
 const quizQuestionSchema = new Schema(
   {
@@ -230,12 +194,18 @@ const resourceSchema = new Schema(
 export const User = models.User || model('User', userSchema);
 export const Course = models.Course || model('Course', courseSchema);
 export const Lesson = models.Lesson || model('Lesson', lessonSchema);
-export const Lab = models.Lab || model('Lab', labSchema);
+// Lab model is defined in ./lab.model.js
+export { Lab } from './lab.model.js';
 export const Quiz = models.Quiz || model('Quiz', quizSchema);
 export const Note = models.Note || model('Note', noteSchema);
 export const Progress = models.Progress || model('Progress', progressSchema);
 export const Command = models.Command || model('Command', commandSchema);
 export const Resource = models.Resource || model('Resource', resourceSchema);
+export { Dataset } from './dataset.model.js';
+export { EvidencePack } from './evidencePack.model.js';
+export { CaseStudy } from './caseStudy.model.js';
+export { DashboardBoard } from './dashboardBoard.model.js';
+export { DashboardWidget } from './dashboardWidget.model.js';
 
 export const publicUserShape = (user) => ({
   id: String(user._id),

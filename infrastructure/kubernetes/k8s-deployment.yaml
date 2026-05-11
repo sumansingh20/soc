@@ -23,7 +23,7 @@ metadata:
 type: Opaque
 stringData:
   DATABASE_URL: "postgresql://user:password@postgres:5432/soc_platform"
-  MONGODB_URI: "mongodb://user:password@mongodb:27017/soc_platform"
+  MONGODB_URI: "mongodb+srv://sumantech:sumankumar@cluster0.1enfs6w.mongodb.net/"
   JWT_SECRET: "your-jwt-secret-change-this"
 
 ---

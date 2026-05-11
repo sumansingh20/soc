@@ -26,8 +26,14 @@ import commandRoutes from './routes/commands.js';
 import lessonRoutes from './routes/lessons.js';
 import contentRoutes from './routes/content.js';
 
+import datasetRoutes from './routes/datasets.js';
+import evidenceRoutes from './routes/evidence.js';
+import caseRoutes from './routes/cases.js';
+import dashboardBoardsRoutes from './routes/dashboardBoards.js';
+
 import errorHandler from './middleware/errorHandler.js';
 import authenticate from './middleware/authenticate.js';
+
 
 const app = express();
 const httpServer = createServer(app);
@@ -83,6 +89,10 @@ app.get('/api-docs', (_req, res) => {
       commands: '/api/commands',
       lessons: '/api/lessons',
       content: '/api/content',
+      datasets: '/api/datasets',
+      evidence: '/api/evidence',
+      cases: '/api/cases',
+      dashboardBoards: '/api/dashboard/boards',
     },
   });
 });
@@ -96,11 +106,18 @@ app.use('/api/certificates', authenticate, certificateRoutes);
 app.use('/api/admin', authenticate, adminRoutes);
 app.use('/api/dashboard', authenticate, dashboardRoutes);
 app.use('/api/quizzes', authenticate, quizRoutes);
-app.use('/api/notes', notesRoutes);
-app.use('/api/resources', resourcesRoutes);
-app.use('/api/commands', commandRoutes);
-app.use('/api/lessons', lessonRoutes);
-app.use('/api/content', contentRoutes);
+app.use('/api/notes', authenticate, notesRoutes);
+app.use('/api/resources', authenticate, resourcesRoutes);
+app.use('/api/commands', authenticate, commandRoutes);
+app.use('/api/lessons', authenticate, lessonRoutes);
+app.use('/api/content', authenticate, contentRoutes);
+
+app.use('/api/datasets', authenticate, datasetRoutes);
+app.use('/api/evidence', authenticate, evidenceRoutes);
+app.use('/api/cases', authenticate, caseRoutes);
+app.use('/api/dashboard/boards', authenticate, dashboardBoardsRoutes);
+
+
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
@@ -125,11 +142,15 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT = config.PORT || 5000;
-httpServer.listen(PORT, config.HOST, () => {
-  logger.info(`SOC Academy Backend running on http://${config.HOST}:${PORT}`);
-  logger.info(`Environment: ${config.NODE_ENV}`);
-});
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  const PORT = config.PORT || 5000;
+  httpServer.listen(PORT, config.HOST, () => {
+    logger.info(`SOC Academy Backend running on http://${config.HOST}:${PORT}`);
+    logger.info(`Environment: ${config.NODE_ENV}`);
+  });
+}
+
+export default app;
 
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received, shutting down gracefully');
